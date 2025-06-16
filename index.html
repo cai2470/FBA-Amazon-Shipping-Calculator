@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FBA运费计算</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚚 FBA运费计算</h1>
+            <p>亚马逊物流配送费用计算器</p>
+        </header>
+
+        <main>
+            <div class="calculator-card">
+                <div class="input-section">
+                    <h2>商品信息输入</h2>
+                    
+                    <div class="unit-selector">
+                        <label>选择单位制：</label>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="unit-system" value="metric" checked>
+                                <span>公制（厘米/公斤）</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="unit-system" value="imperial">
+                                <span>英制（英寸/磅）</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="dimensions-input">
+                        <h3>商品尺寸</h3>
+                        <div class="dimension-row">
+                            <div class="input-group">
+                                <label for="length">长度</label>
+                                <input type="number" id="length" step="0.1" min="0">
+                                <span class="unit-label">cm</span>
+                                <div class="conversion-display" id="length-conversion"></div>
+                            </div>
+                            <div class="input-group">
+                                <label for="width">宽度</label>
+                                <input type="number" id="width" step="0.1" min="0">
+                                <span class="unit-label">cm</span>
+                                <div class="conversion-display" id="width-conversion"></div>
+                            </div>
+                            <div class="input-group">
+                                <label for="height">高度</label>
+                                <input type="number" id="height" step="0.1" min="0">
+                                <span class="unit-label">cm</span>
+                                <div class="conversion-display" id="height-conversion"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="weight-input">
+                        <h3>实际重量</h3>
+                        <div class="input-group">
+                            <label for="actual-weight">重量</label>
+                            <input type="number" id="actual-weight" step="0.01" min="0">
+                            <span class="unit-label">kg</span>
+                            <div class="conversion-display" id="weight-conversion"></div>
+                        </div>
+                    </div>
+
+                    <button id="calculate-btn" class="calculate-btn">计算运费</button>
+                </div>
+
+                <div class="result-section">
+                    <h2>计算结果</h2>
+                    <div class="result-card">
+                        <div class="result-item">
+                            <label>体积重：</label>
+                            <span id="volume-weight">--</span>
+                        </div>
+                        <div class="result-item">
+                            <label>计费重量：</label>
+                            <span id="billing-weight">--</span>
+                        </div>
+                        <div class="result-item">
+                            <label>商品分类：</label>
+                            <span id="product-category">--</span>
+                        </div>
+                        <div class="result-item highlight">
+                            <label>配送费用：</label>
+                            <span id="shipping-cost">--</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="history-section">
+                <div class="history-header">
+                    <h2>计算历史</h2>
+                    <button id="clear-history" class="clear-btn">清空历史</button>
+                </div>
+                <div id="history-list" class="history-list">
+                    <p class="empty-history">暂无计算记录</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="calculator.js"></script>
+</body>
+</html>
