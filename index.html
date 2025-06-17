@@ -3,8 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FBA运费计算</title>
+    
+    <!-- SEO优化标题和描述 -->
+    <title>FBA美区亚马逊运费计算器 - 免费在线物流配送费用计算工具</title>
+    <meta name="description" content="专业的FBA美区亚马逊运费计算器，免费计算亚马逊物流配送费用。支持公制英制单位转换，准确计算体积重量、计费重量和配送成本。">
+    <meta name="keywords" content="FBA运费计算器,亚马逊运费计算,美区FBA费用,亚马逊物流费用,FBA配送费,Amazon FBA Calculator,体积重量计算,运费计算工具,电商物流">
+    <meta name="author" content="FBA运费计算器">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="FBA美区亚马逊运费计算器 - 免费在线物流配送费用计算工具">
+    <meta property="og:description" content="专业的FBA美区亚马逊运费计算器，免费计算亚马逊物流配送费用。支持公制英制单位转换，准确计算体积重量、计费重量和配送成本。">
+    <meta property="og:url" content="https://liuchunxiao.xyz">
+    <meta property="og:site_name" content="FBA运费计算器">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="FBA美区亚马逊运费计算器">
+    <meta property="twitter:description" content="专业的FBA美区亚马逊运费计算器，免费计算亚马逊物流配送费用。">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="manifest" href="site.webmanifest">
+    
+    <!-- 其他SEO优化 -->
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="zh-CN">
+    <meta name="revisit-after" content="7 days">
+    <meta name="theme-color" content="#667eea">
+    
+    <!-- 样式表 -->
     <link rel="stylesheet" href="styles.css">
+    
+    <!-- 结构化数据 -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "FBA美区亚马逊运费计算器",
+        "description": "专业的FBA美区亚马逊运费计算器，免费计算亚马逊物流配送费用。支持公制英制单位转换，准确计算体积重量、计费重量和配送成本。",
+        "url": "https://liuchunxiao.xyz",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Any",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        },
+        "featureList": [
+            "FBA运费计算",
+            "体积重量计算",
+            "公制英制单位转换",
+            "计算历史记录",
+            "免费使用"
+        ]
+    }
+    </script>
 </head>
 <body>
     <div class="container">
@@ -71,6 +129,10 @@
 
                 <div class="result-section">
                     <h2>计算结果</h2>
+                    <div class="exchange-rate-info">
+                        <span id="exchange-rate-display">💱 USD/CNY: <span id="exchange-rate">加载中...</span></span>
+                        <span class="update-time" id="rate-update-time"></span>
+                    </div>
                     <div class="result-card">
                         <div class="result-item">
                             <label>体积重：</label>
@@ -88,6 +150,47 @@
                             <label>配送费用：</label>
                             <span id="shipping-cost">--</span>
                         </div>
+                        <div class="result-item cny-cost">
+                            <label>费用（人民币）：</label>
+                            <span id="shipping-cost-cny">--</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="batch-section">
+                <div class="batch-header">
+                    <h2>📊 批量计算</h2>
+                    <div class="batch-controls">
+                        <button id="download-template" class="template-btn">下载模板</button>
+                        <label for="batch-file" class="upload-btn">上传文件</label>
+                        <input type="file" id="batch-file" accept=".csv" style="display: none;">
+                    </div>
+                </div>
+                <div class="batch-results" id="batch-results" style="display: none;">
+                    <div class="batch-summary">
+                        <h3>批量计算结果</h3>
+                        <div class="summary-stats" id="summary-stats"></div>
+                        <button id="download-results" class="download-btn">下载结果</button>
+                    </div>
+                    <div class="batch-table-container">
+                        <table id="batch-table">
+                            <thead>
+                                <tr>
+                                    <th>序号</th>
+                                    <th>商品名称</th>
+                                    <th>尺寸(L×W×H)</th>
+                                    <th>实际重量</th>
+                                    <th>体积重</th>
+                                    <th>计费重量</th>
+                                    <th>分类</th>
+                                    <th>运费(USD)</th>
+                                    <th>运费(CNY)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="batch-table-body">
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -102,6 +205,38 @@
                 </div>
             </div>
         </main>
+        
+        <footer class="site-footer">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>关于FBA运费计算器</h3>
+                    <p>专业的<strong>FBA美区亚马逊运费计算器</strong>，帮助卖家准确计算<strong>亚马逊物流费用</strong>，支持公制和英制单位，实时计算<strong>体积重量</strong>和<strong>FBA配送费</strong>。</p>
+                </div>
+                <div class="footer-section">
+                    <h3>功能特点</h3>
+                    <ul>
+                        <li>• 免费使用的<strong>Amazon FBA Calculator</strong></li>
+                        <li>• 精准的<strong>运费计算工具</strong></li>
+                        <li>• 支持多种商品分类</li>
+                        <li>• 计算历史保存</li>
+                        <li>• 移动设备友好</li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>适用人群</h3>
+                    <ul>
+                        <li>• 亚马逊美区卖家</li>
+                        <li>• 跨境电商从业者</li>
+                        <li>• FBA服务提供商</li>
+                        <li>• 物流成本分析师</li>
+                        <li>• 电商创业者</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 FBA运费计算器 - 专业的亚马逊物流费用计算工具</p>
+            </div>
+        </footer>
     </div>
 
     <script src="calculator.js"></script>

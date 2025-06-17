@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+# 网站地图
+Sitemap: https://your-domain.com/sitemap.xml
+
+# 爬取频率
+Crawl-delay: 1

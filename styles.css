@@ -337,16 +337,283 @@ main {
     color: #7f8c8d;
 }
 
+.history-cost-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+}
+
 .history-cost {
     font-weight: 700;
     color: #27ae60;
     font-size: 1.1rem;
 }
 
+.history-cost-cny {
+    font-weight: 600;
+    color: #e67e22;
+    font-size: 0.9rem;
+}
+
 .history-details {
     font-size: 0.9rem;
     color: #555;
     line-height: 1.4;
+}
+
+/* 页脚样式 */
+.site-footer {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    color: white;
+    margin-top: 50px;
+    border-radius: 15px 15px 0 0;
+}
+
+.footer-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+    padding: 40px 30px;
+}
+
+.footer-section h3 {
+    color: #3498db;
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 8px;
+}
+
+.footer-section p {
+    line-height: 1.6;
+    margin-bottom: 15px;
+    opacity: 0.9;
+}
+
+.footer-section ul {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-section li {
+    padding: 5px 0;
+    opacity: 0.9;
+    line-height: 1.5;
+}
+
+.footer-section strong {
+    color: #3498db;
+    font-weight: 600;
+}
+
+.footer-bottom {
+    background: rgba(0,0,0,0.2);
+    text-align: center;
+    padding: 20px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.footer-bottom p {
+    margin: 0;
+    opacity: 0.8;
+    font-size: 0.9rem;
+}
+
+/* 汇率显示样式 */
+.exchange-rate-info {
+    background: linear-gradient(135deg, #e8f5e8 0%, #d5eddb 100%);
+    border: 2px solid #27ae60;
+    border-radius: 10px;
+    padding: 12px 18px;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.95rem;
+    box-shadow: 0 2px 8px rgba(39, 174, 96, 0.15);
+}
+
+.exchange-rate-info #exchange-rate-display {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.exchange-rate-info #exchange-rate {
+    font-weight: 700;
+    color: #27ae60;
+    font-size: 1.1rem;
+    margin-left: 5px;
+}
+
+.update-time {
+    color: #7f8c8d;
+    font-size: 0.8rem;
+    font-style: italic;
+}
+
+.result-item.cny-cost {
+    background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+    border: none;
+    border-left: 4px solid #ff9800;
+    margin: 10px -15px 0 -15px;
+    padding: 15px 20px;
+    border-radius: 0 8px 8px 0;
+    box-shadow: 0 2px 8px rgba(255, 152, 0, 0.15);
+}
+
+.result-item.cny-cost label {
+    color: #e65100;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.result-item.cny-cost span {
+    color: #ff6f00;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+/* 批量计算样式 */
+.batch-section {
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+}
+
+.batch-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.batch-header h2 {
+    color: #2c3e50;
+    font-size: 1.5rem;
+    border-bottom: 3px solid #3498db;
+    padding-bottom: 10px;
+    margin-bottom: 0;
+}
+
+.batch-controls {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.template-btn, .upload-btn, .download-btn {
+    background: #3498db;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.template-btn:hover, .upload-btn:hover, .download-btn:hover {
+    background: #2980b9;
+    transform: translateY(-2px);
+}
+
+.download-btn {
+    background: #27ae60;
+}
+
+.download-btn:hover {
+    background: #229954;
+}
+
+.batch-results {
+    margin-top: 25px;
+}
+
+.batch-summary {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.batch-summary h3 {
+    margin-top: 0;
+    color: #2c3e50;
+}
+
+.summary-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    margin: 15px 0;
+}
+
+.stat-item {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    border: 1px solid #e1e8ed;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #3498db;
+    display: block;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: #7f8c8d;
+    margin-top: 5px;
+}
+
+.batch-table-container {
+    overflow-x: auto;
+    border-radius: 8px;
+    border: 1px solid #e1e8ed;
+}
+
+.batch-table-container table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+.batch-table-container th,
+.batch-table-container td {
+    padding: 12px 10px;
+    text-align: left;
+    border-bottom: 1px solid #e1e8ed;
+    font-size: 0.9rem;
+}
+
+.batch-table-container th {
+    background: #f8f9fa;
+    font-weight: 600;
+    color: #2c3e50;
+    position: sticky;
+    top: 0;
+}
+
+.batch-table-container tbody tr:hover {
+    background: #f8f9fa;
+}
+
+.batch-table-container tbody tr:nth-child(even) {
+    background: #fdfdfd;
+}
+
+.batch-table-container tbody tr:nth-child(even):hover {
+    background: #f8f9fa;
 }
 
 @media (max-width: 768px) {
@@ -369,5 +636,35 @@ main {
     .radio-group {
         flex-direction: column;
         gap: 10px;
+    }
+    
+    .footer-content {
+        grid-template-columns: 1fr;
+        gap: 20px;
+        padding: 30px 20px;
+    }
+    
+    .batch-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .batch-controls {
+        justify-content: center;
+    }
+    
+    .exchange-rate-info {
+        flex-direction: column;
+        gap: 5px;
+        text-align: center;
+    }
+    
+    .summary-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    .result-item.cny-cost {
+        margin: 10px -20px 0 -20px;
+        padding: 15px 20px;
     }
 }

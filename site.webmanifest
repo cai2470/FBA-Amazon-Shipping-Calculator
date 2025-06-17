@@ -1,0 +1,35 @@
+{
+    "name": "FBA美区亚马逊运费计算器",
+    "short_name": "FBA计算器",
+    "description": "专业的FBA美区亚马逊运费计算器，免费计算亚马逊物流配送费用",
+    "icons": [
+        {
+            "src": "favicon-16x16.png",
+            "sizes": "16x16",
+            "type": "image/png"
+        },
+        {
+            "src": "favicon-32x32.png",
+            "sizes": "32x32",
+            "type": "image/png"
+        },
+        {
+            "src": "apple-touch-icon.png",
+            "sizes": "180x180",
+            "type": "image/png"
+        },
+        {
+            "src": "favicon.svg",
+            "sizes": "any",
+            "type": "image/svg+xml"
+        }
+    ],
+    "theme_color": "#667eea",
+    "background_color": "#667eea",
+    "display": "standalone",
+    "orientation": "portrait",
+    "start_url": "/",
+    "scope": "/",
+    "lang": "zh-CN",
+    "categories": ["business", "productivity", "utilities"]
+}

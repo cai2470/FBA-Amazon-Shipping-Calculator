@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea"/>
+      <stop offset="100%" style="stop-color:#764ba2"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- 背景圆角矩形 -->
+  <rect width="64" height="64" rx="12" fill="url(#bg)"/>
+  
+  <!-- 卡车图标 -->
+  <g fill="white">
+    <!-- 卡车主体 -->
+    <rect x="8" y="24" width="28" height="18" rx="2"/>
+    <!-- 卡车车头 -->
+    <rect x="36" y="28" width="12" height="14" rx="2"/>
+    <!-- 车轮 -->
+    <circle cx="16" cy="46" r="4"/>
+    <circle cx="40" cy="46" r="4"/>
+    <!-- 车窗 -->
+    <rect x="38" y="30" width="8" height="6" rx="1" fill="#667eea"/>
+    <!-- 货箱线条 -->
+    <line x1="12" y1="28" x2="32" y2="28" stroke="#667eea" stroke-width="1"/>
+    <line x1="12" y1="32" x2="32" y2="32" stroke="#667eea" stroke-width="1"/>
+    
+    <!-- 美元符号 -->
+    <text x="20" y="20" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="white">$</text>
+  </g>
+</svg>

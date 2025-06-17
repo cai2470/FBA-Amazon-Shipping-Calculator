@@ -4,6 +4,9 @@ class FBACalculator {
         this.bindEvents();
         this.loadHistory();
         this.setupUnitSystem();
+        this.loadCachedExchangeRate(); // 先加载缓存的汇率
+        this.initializeExchangeRate();
+        this.batchData = [];
     }
 
     initializeElements() {
@@ -28,6 +31,19 @@ class FBACalculator {
         
         this.historyList = document.getElementById('history-list');
         this.clearHistoryBtn = document.getElementById('clear-history');
+        
+        // 汇率相关元素
+        this.exchangeRateSpan = document.getElementById('exchange-rate');
+        this.rateUpdateTimeSpan = document.getElementById('rate-update-time');
+        this.shippingCostCnySpan = document.getElementById('shipping-cost-cny');
+        
+        // 批量计算元素
+        this.downloadTemplateBtn = document.getElementById('download-template');
+        this.batchFileInput = document.getElementById('batch-file');
+        this.batchResults = document.getElementById('batch-results');
+        this.summaryStats = document.getElementById('summary-stats');
+        this.batchTableBody = document.getElementById('batch-table-body');
+        this.downloadResultsBtn = document.getElementById('download-results');
     }
 
     bindEvents() {
@@ -49,6 +65,11 @@ class FBACalculator {
         
         // 加载保存的输入数据
         this.loadSavedInputs();
+        
+        // 批量计算事件绑定
+        this.downloadTemplateBtn.addEventListener('click', () => this.downloadTemplate());
+        this.batchFileInput.addEventListener('change', (e) => this.handleBatchFile(e));
+        this.downloadResultsBtn.addEventListener('click', () => this.downloadResults());
     }
 
     setupUnitSystem() {
@@ -316,6 +337,10 @@ class FBACalculator {
         this.billingWeightSpan.textContent = `${billingWeight.toFixed(2)} ${weightUnit}`;
         this.productCategorySpan.textContent = categoryInfo.name;
         this.shippingCostSpan.textContent = `$${shippingCost.toFixed(2)}`;
+        
+        // 显示人民币费用
+        const costCny = shippingCost * this.exchangeRate;
+        this.shippingCostCnySpan.textContent = `¥${costCny.toFixed(2)}`;
     }
 
     clearResults() {
@@ -323,6 +348,7 @@ class FBACalculator {
         this.billingWeightSpan.textContent = '--';
         this.productCategorySpan.textContent = '--';
         this.shippingCostSpan.textContent = '--';
+        this.shippingCostCnySpan.textContent = '--';
     }
 
     saveToHistory(record) {
@@ -403,11 +429,17 @@ class FBACalculator {
         const weightUnit = record.unitSystem === 'metric' ? 'kg' : 'lbs';
         const dimensionUnit = record.unitSystem === 'metric' ? 'cm' : 'in';
         
+        // 计算人民币费用（使用当前汇率）
+        const cnyCost = record.shippingCost * this.exchangeRate;
+        
         return `
             <div class="history-item">
                 <div class="history-item-header">
                     <span class="history-date">${dateStr} (${unitSystem})</span>
-                    <span class="history-cost">$${record.shippingCost.toFixed(2)}</span>
+                    <div class="history-cost-group">
+                        <span class="history-cost">$${record.shippingCost.toFixed(2)}</span>
+                        <span class="history-cost-cny">¥${cnyCost.toFixed(2)}</span>
+                    </div>
                 </div>
                 <div class="history-details">
                     尺寸: ${record.dimensions.length}×${record.dimensions.width}×${record.dimensions.height} ${dimensionUnit} | 
@@ -449,6 +481,278 @@ class FBACalculator {
             localStorage.removeItem('fba-calculator-history');
             this.loadHistory();
         }
+    }
+
+    // 汇率相关功能
+    loadCachedExchangeRate() {
+        const cachedData = JSON.parse(localStorage.getItem('fba-exchange-rate') || '{}');
+        
+        if (cachedData.rate && cachedData.updateTime) {
+            this.exchangeRate = cachedData.rate;
+            const updateTime = new Date(cachedData.updateTime);
+            this.exchangeRateSpan.textContent = this.exchangeRate.toFixed(4);
+            this.rateUpdateTimeSpan.textContent = `更新时间: ${updateTime.toLocaleString('zh-CN')}`;
+        } else {
+            // 如果没有缓存，使用默认值
+            this.exchangeRate = 7.2;
+            this.exchangeRateSpan.textContent = `${this.exchangeRate.toFixed(4)} (默认)`;
+            this.rateUpdateTimeSpan.textContent = '等待获取最新汇率...';
+        }
+    }
+
+    initializeExchangeRate() {
+        this.fetchExchangeRate();
+        // 每小时更新一次汇率
+        setInterval(() => {
+            this.fetchExchangeRate();
+        }, 3600000);
+    }
+
+    async fetchExchangeRate() {
+        try {
+            // 使用ExchangeRate-API公司的免费汇率API
+            const response = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+            const data = await response.json();
+            
+            if (data.rates && data.rates.CNY) {
+                const newRate = data.rates.CNY;
+                const updateTime = new Date();
+                
+                // 更新汇率
+                this.exchangeRate = newRate;
+                this.exchangeRateSpan.textContent = this.exchangeRate.toFixed(4);
+                this.rateUpdateTimeSpan.textContent = `更新时间: ${updateTime.toLocaleString('zh-CN')}`;
+                
+                // 保存到缓存
+                const cacheData = {
+                    rate: newRate,
+                    updateTime: updateTime.toISOString()
+                };
+                localStorage.setItem('fba-exchange-rate', JSON.stringify(cacheData));
+                
+                // 如果当前有计算结果，更新人民币显示
+                this.updateCnyDisplay();
+                
+                // 重新加载历史记录以更新人民币显示
+                this.loadHistory();
+                
+                console.log(`汇率更新成功: 1 USD = ${newRate.toFixed(4)} CNY`);
+            }
+        } catch (error) {
+            console.log('汇率获取失败，使用缓存汇率:', error);
+            
+            // 网络失败时的显示
+            const cachedData = JSON.parse(localStorage.getItem('fba-exchange-rate') || '{}');
+            if (cachedData.rate) {
+                const updateTime = new Date(cachedData.updateTime);
+                this.rateUpdateTimeSpan.textContent = `网络失败 (缓存时间: ${updateTime.toLocaleString('zh-CN')})`;
+            } else {
+                this.rateUpdateTimeSpan.textContent = '网络连接失败，使用默认汇率';
+            }
+        }
+    }
+
+    updateCnyDisplay() {
+        // 如果当前有USD费用显示，更新CNY费用
+        const usdCostText = this.shippingCostSpan.textContent;
+        if (usdCostText && usdCostText !== '--') {
+            const usdCost = parseFloat(usdCostText.replace('$', ''));
+            if (!isNaN(usdCost)) {
+                const cnyCost = usdCost * this.exchangeRate;
+                this.shippingCostCnySpan.textContent = `¥${cnyCost.toFixed(2)}`;
+            }
+        }
+    }
+
+    // 批量计算功能
+    downloadTemplate() {
+        const template = `商品名称,长度,宽度,高度,实际重量,单位制
+示例商品1,30,20,15,2.5,metric
+示例商品2,12,8,6,1.1,imperial
+示例商品3,25,15,10,1.8,metric`;
+
+        const blob = new Blob([template], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', 'FBA运费计算模板.csv');
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    handleBatchFile(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const csv = e.target.result;
+                const lines = csv.split('\n');
+                const headers = lines[0].split(',');
+                
+                if (headers.length < 6) {
+                    alert('CSV格式错误，请下载模板查看正确格式');
+                    return;
+                }
+
+                this.batchData = [];
+                
+                for (let i = 1; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    if (!line) continue;
+                    
+                    const values = line.split(',');
+                    if (values.length >= 6) {
+                        const name = values[0].trim();
+                        const length = parseFloat(values[1]);
+                        const width = parseFloat(values[2]);
+                        const height = parseFloat(values[3]);
+                        const weight = parseFloat(values[4]);
+                        const unitSystem = values[5].trim().toLowerCase();
+
+                        if (name && !isNaN(length) && !isNaN(width) && !isNaN(height) && !isNaN(weight)) {
+                            const isMetric = unitSystem === 'metric';
+                            const result = this.calculateForBatch(length, width, height, weight, isMetric);
+                            
+                            this.batchData.push({
+                                name,
+                                dimensions: { length, width, height },
+                                actualWeight: weight,
+                                unitSystem,
+                                ...result
+                            });
+                        }
+                    }
+                }
+
+                if (this.batchData.length > 0) {
+                    this.displayBatchResults();
+                } else {
+                    alert('没有找到有效的数据行，请检查CSV格式');
+                }
+                
+            } catch (error) {
+                alert('文件解析失败：' + error.message);
+            }
+        };
+        
+        reader.readAsText(file, 'utf-8');
+    }
+
+    calculateForBatch(length, width, height, actualWeight, isMetric) {
+        // 复制主计算逻辑
+        const volumeWeight = this.calculateVolumeWeight(length, width, height, isMetric);
+        const billingWeight = Math.max(actualWeight, volumeWeight);
+        
+        let billingWeightLbs;
+        if (isMetric) {
+            billingWeightLbs = billingWeight / 0.453592;
+        } else {
+            billingWeightLbs = billingWeight;
+        }
+        
+        const categoryInfo = this.determineCategory(length, width, height, billingWeightLbs, isMetric);
+        const shippingCost = this.calculateShippingCost(billingWeightLbs, categoryInfo.category);
+        
+        return {
+            volumeWeight,
+            billingWeight,
+            category: categoryInfo,
+            shippingCost,
+            shippingCostCny: shippingCost * this.exchangeRate
+        };
+    }
+
+    displayBatchResults() {
+        this.batchResults.style.display = 'block';
+        
+        // 计算统计数据
+        const totalItems = this.batchData.length;
+        const totalCostUSD = this.batchData.reduce((sum, item) => sum + item.shippingCost, 0);
+        const totalCostCNY = totalCostUSD * this.exchangeRate;
+        const avgCostUSD = totalCostUSD / totalItems;
+        
+        // 显示统计信息
+        this.summaryStats.innerHTML = `
+            <div class="stat-item">
+                <span class="stat-value">${totalItems}</span>
+                <div class="stat-label">商品总数</div>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value">$${totalCostUSD.toFixed(2)}</span>
+                <div class="stat-label">总运费(USD)</div>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value">¥${totalCostCNY.toFixed(2)}</span>
+                <div class="stat-label">总运费(CNY)</div>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value">$${avgCostUSD.toFixed(2)}</span>
+                <div class="stat-label">平均运费</div>
+            </div>
+        `;
+        
+        // 显示详细表格
+        this.batchTableBody.innerHTML = this.batchData.map((item, index) => {
+            const weightUnit = item.unitSystem === 'metric' ? 'kg' : 'lbs';
+            const dimensionUnit = item.unitSystem === 'metric' ? 'cm' : 'in';
+            
+            return `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${item.name}</td>
+                    <td>${item.dimensions.length}×${item.dimensions.width}×${item.dimensions.height} ${dimensionUnit}</td>
+                    <td>${item.actualWeight} ${weightUnit}</td>
+                    <td>${item.volumeWeight.toFixed(2)} ${weightUnit}</td>
+                    <td>${item.billingWeight.toFixed(2)} ${weightUnit}</td>
+                    <td>${item.category.name}</td>
+                    <td>$${item.shippingCost.toFixed(2)}</td>
+                    <td>¥${item.shippingCostCny.toFixed(2)}</td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    downloadResults() {
+        if (this.batchData.length === 0) {
+            alert('没有计算结果可下载');
+            return;
+        }
+
+        let csv = '序号,商品名称,长度,宽度,高度,实际重量,体积重,计费重量,商品分类,运费USD,运费CNY,单位制\n';
+        
+        this.batchData.forEach((item, index) => {
+            const weightUnit = item.unitSystem === 'metric' ? 'kg' : 'lbs';
+            const dimensionUnit = item.unitSystem === 'metric' ? 'cm' : 'in';
+            
+            csv += [
+                index + 1,
+                `"${item.name}"`,
+                item.dimensions.length,
+                item.dimensions.width,
+                item.dimensions.height,
+                `${item.actualWeight} ${weightUnit}`,
+                `${item.volumeWeight.toFixed(2)} ${weightUnit}`,
+                `${item.billingWeight.toFixed(2)} ${weightUnit}`,
+                `"${item.category.name}"`,
+                `$${item.shippingCost.toFixed(2)}`,
+                `¥${item.shippingCostCny.toFixed(2)}`,
+                item.unitSystem === 'metric' ? '公制' : '英制'
+            ].join(',') + '\n';
+        });
+
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', `FBA运费计算结果_${new Date().toISOString().split('T')[0]}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     }
 }
 
