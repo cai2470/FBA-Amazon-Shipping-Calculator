@@ -368,6 +368,8 @@ main {
     color: white;
     margin-top: 50px;
     border-radius: 15px 15px 0 0;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .footer-content {
@@ -375,6 +377,8 @@ main {
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 30px;
     padding: 40px 30px;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .footer-section h3 {
@@ -580,12 +584,16 @@ main {
     overflow-x: auto;
     border-radius: 8px;
     border: 1px solid #e1e8ed;
+    max-height: 500px;
+    overflow-y: auto;
 }
 
 .batch-table-container table {
     width: 100%;
+    min-width: 800px;
     border-collapse: collapse;
     background: white;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 .batch-table-container th,
@@ -593,7 +601,8 @@ main {
     padding: 12px 10px;
     text-align: left;
     border-bottom: 1px solid #e1e8ed;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
+    white-space: nowrap;
 }
 
 .batch-table-container th {
@@ -602,6 +611,12 @@ main {
     color: #2c3e50;
     position: sticky;
     top: 0;
+    z-index: 10;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.batch-table-container tbody tr {
+    transition: background-color 0.2s ease;
 }
 
 .batch-table-container tbody tr:hover {
@@ -614,6 +629,26 @@ main {
 
 .batch-table-container tbody tr:nth-child(even):hover {
     background: #f8f9fa;
+}
+
+/* 针对表格中特定列的样式 */
+.batch-table-container td:first-child {
+    font-weight: 600;
+    color: #495057;
+}
+
+.batch-table-container td:nth-child(8),
+.batch-table-container td:nth-child(9) {
+    font-weight: 600;
+    text-align: right;
+}
+
+.batch-table-container td:nth-child(8) {
+    color: #28a745;
+}
+
+.batch-table-container td:nth-child(9) {
+    color: #fd7e14;
 }
 
 @media (max-width: 768px) {
