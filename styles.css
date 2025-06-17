@@ -484,6 +484,24 @@ main {
     font-weight: 500;
 }
 
+.calculation-info {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(39, 174, 96, 0.2);
+}
+
+.precision-note {
+    font-size: 0.75rem;
+    color: #7f8c8d;
+    font-style: italic;
+    display: block;
+    text-align: center;
+    background: rgba(241, 196, 15, 0.1);
+    padding: 4px 8px;
+    border-radius: 8px;
+    border-left: 3px solid #f1c40f;
+}
+
 .result-item.cny-cost {
     background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
     border: none;

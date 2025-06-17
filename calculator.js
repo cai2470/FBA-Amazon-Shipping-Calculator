@@ -146,38 +146,55 @@ class FBACalculator {
 
         const isMetric = document.querySelector('input[name="unit-system"]:checked').value === 'metric';
         
-        // 计算体积重
-        const volumeWeight = this.calculateVolumeWeight(length, width, height, isMetric);
-        
-        // 确定计费重量（取实际重量和体积重的较大值）
-        const billingWeight = Math.max(actualWeight, volumeWeight);
-        
-        // 统一转换为磅进行所有计算（避免多次转换精度问题）
-        let billingWeightLbs, actualWeightLbs, volumeWeightLbs;
+        // 🔥 核心修复：统一转换为英制进行所有计算（Amazon官方标准）
+        let lengthInch, widthInch, heightInch, actualWeightLbs;
         
         if (isMetric) {
-            billingWeightLbs = billingWeight / 0.453592;
-            actualWeightLbs = actualWeight / 0.453592;
-            volumeWeightLbs = volumeWeight / 0.453592;
+            // 公制转英制：精确到小数点后4位
+            lengthInch = parseFloat((length / 2.54).toFixed(4));
+            widthInch = parseFloat((width / 2.54).toFixed(4));
+            heightInch = parseFloat((height / 2.54).toFixed(4));
+            actualWeightLbs = parseFloat((actualWeight / 0.453592).toFixed(4));
         } else {
-            billingWeightLbs = billingWeight;
+            // 英制数据保持原有精度
+            lengthInch = length;
+            widthInch = width;
+            heightInch = height;
             actualWeightLbs = actualWeight;
-            volumeWeightLbs = volumeWeight;
         }
         
-        // 确定商品分类和费用（使用磅单位）
-        const categoryInfo = this.determineCategory(length, width, height, billingWeightLbs, isMetric);
+        // 使用英制数据计算体积重（Amazon官方公式）
+        const volumeWeightLbs = this.calculateVolumeWeightInImperial(lengthInch, widthInch, heightInch);
+        
+        // 确定计费重量（取实际重量和体积重的较大值，都是磅单位）
+        const billingWeightLbs = Math.max(actualWeightLbs, volumeWeightLbs);
+        
+        // 使用英制数据进行分类判断（Amazon官方标准）
+        const categoryInfo = this.determineCategory(lengthInch, widthInch, heightInch, billingWeightLbs, false);
         const shippingCost = this.calculateShippingCost(billingWeightLbs, categoryInfo.category);
         
+        // 转换回用户单位制进行显示
+        let displayVolumeWeight, displayActualWeight, displayBillingWeight;
+        
+        if (isMetric) {
+            displayVolumeWeight = volumeWeightLbs * 0.453592; // 转回kg显示
+            displayActualWeight = actualWeight; // 保持原输入
+            displayBillingWeight = billingWeightLbs * 0.453592; // 转回kg显示
+        } else {
+            displayVolumeWeight = volumeWeightLbs;
+            displayActualWeight = actualWeight;
+            displayBillingWeight = billingWeightLbs;
+        }
+        
         // 显示结果
-        this.displayResults(volumeWeight, billingWeight, categoryInfo, shippingCost, isMetric);
+        this.displayResults(displayVolumeWeight, displayBillingWeight, categoryInfo, shippingCost, isMetric);
         
         return {
             date: new Date(),
             dimensions: { length, width, height },
             actualWeight,
-            volumeWeight,
-            billingWeight,
+            volumeWeight: displayVolumeWeight,
+            billingWeight: displayBillingWeight,
             category: categoryInfo,
             shippingCost,
             unitSystem: isMetric ? 'metric' : 'imperial'
@@ -196,19 +213,19 @@ class FBACalculator {
         }
     }
 
-    determineCategory(length, width, height, billingWeightLbs, isMetric) {
-        // 转换尺寸为英寸进行分类判断
-        let lengthInch, widthInch, heightInch;
+    calculateVolumeWeightInImperial(lengthInch, widthInch, heightInch) {
+        // 🎯 Amazon官方标准：英制体积重计算
+        // 公式：(长 × 宽 × 高) ÷ 139 = 体积重(磅)
+        const volumeCubicInches = lengthInch * widthInch * heightInch;
+        const volumeWeightLbs = volumeCubicInches / 139;
         
-        if (isMetric) {
-            lengthInch = length / 2.54;
-            widthInch = width / 2.54;
-            heightInch = height / 2.54;
-        } else {
-            lengthInch = length;
-            widthInch = width;
-            heightInch = height;
-        }
+        // 返回精确到小数点后4位的体积重
+        return parseFloat(volumeWeightLbs.toFixed(4));
+    }
+
+    determineCategory(lengthInch, widthInch, heightInch, billingWeightLbs, forceImperial = true) {
+        // 🎯 Amazon官方标准：统一使用英制数据进行分类判断
+        // 输入的lengthInch, widthInch, heightInch已经是英制数据
         
         // 获取最长边、中边、最短边
         const dimensions = [lengthInch, widthInch, heightInch].sort((a, b) => b - a);
@@ -480,17 +497,17 @@ class FBACalculator {
         const weight = parseFloat(this.actualWeightInput.value);
         
         if (isMetric) {
-            // 公制转英制
-            this.lengthConversion.textContent = length ? `${(length / 2.54).toFixed(2)} in` : '';
-            this.widthConversion.textContent = width ? `${(width / 2.54).toFixed(2)} in` : '';
-            this.heightConversion.textContent = height ? `${(height / 2.54).toFixed(2)} in` : '';
-            this.weightConversion.textContent = weight ? `${(weight / 0.453592).toFixed(2)} lbs` : '';
+            // 公制转英制：尺寸精确到4位小数（Amazon计算标准），重量精确到4位小数
+            this.lengthConversion.textContent = length ? `${(length / 2.54).toFixed(4)} in` : '';
+            this.widthConversion.textContent = width ? `${(width / 2.54).toFixed(4)} in` : '';
+            this.heightConversion.textContent = height ? `${(height / 2.54).toFixed(4)} in` : '';
+            this.weightConversion.textContent = weight ? `${(weight / 0.453592).toFixed(4)} lbs` : '';
         } else {
-            // 英制转公制
-            this.lengthConversion.textContent = length ? `${(length * 2.54).toFixed(2)} cm` : '';
-            this.widthConversion.textContent = width ? `${(width * 2.54).toFixed(2)} cm` : '';
-            this.heightConversion.textContent = height ? `${(height * 2.54).toFixed(2)} cm` : '';
-            this.weightConversion.textContent = weight ? `${(weight * 0.453592).toFixed(2)} kg` : '';
+            // 英制转公制：厘米精确到1位小数，重量精确到3位小数
+            this.lengthConversion.textContent = length ? `${(length * 2.54).toFixed(1)} cm` : '';
+            this.widthConversion.textContent = width ? `${(width * 2.54).toFixed(1)} cm` : '';
+            this.heightConversion.textContent = height ? `${(height * 2.54).toFixed(1)} cm` : '';
+            this.weightConversion.textContent = weight ? `${(weight * 0.453592).toFixed(3)} kg` : '';
         }
     }
 
@@ -899,23 +916,47 @@ class FBACalculator {
     }
 
     calculateForBatch(length, width, height, actualWeight, isMetric) {
-        // 复制主计算逻辑
-        const volumeWeight = this.calculateVolumeWeight(length, width, height, isMetric);
-        const billingWeight = Math.max(actualWeight, volumeWeight);
+        // 🔥 批量计算也统一使用英制标准
+        let lengthInch, widthInch, heightInch, actualWeightLbs;
         
-        let billingWeightLbs;
         if (isMetric) {
-            billingWeightLbs = billingWeight / 0.453592;
+            // 公制转英制：精确到小数点后4位
+            lengthInch = parseFloat((length / 2.54).toFixed(4));
+            widthInch = parseFloat((width / 2.54).toFixed(4));
+            heightInch = parseFloat((height / 2.54).toFixed(4));
+            actualWeightLbs = parseFloat((actualWeight / 0.453592).toFixed(4));
         } else {
-            billingWeightLbs = billingWeight;
+            // 英制数据保持原有精度
+            lengthInch = length;
+            widthInch = width;
+            heightInch = height;
+            actualWeightLbs = actualWeight;
         }
         
-        const categoryInfo = this.determineCategory(length, width, height, billingWeightLbs, isMetric);
+        // 使用英制数据计算体积重
+        const volumeWeightLbs = this.calculateVolumeWeightInImperial(lengthInch, widthInch, heightInch);
+        
+        // 确定计费重量（都是磅单位）
+        const billingWeightLbs = Math.max(actualWeightLbs, volumeWeightLbs);
+        
+        // 使用英制数据进行分类判断
+        const categoryInfo = this.determineCategory(lengthInch, widthInch, heightInch, billingWeightLbs, true);
         const shippingCost = this.calculateShippingCost(billingWeightLbs, categoryInfo.category);
         
+        // 转换回显示单位
+        let displayVolumeWeight, displayBillingWeight;
+        
+        if (isMetric) {
+            displayVolumeWeight = volumeWeightLbs * 0.453592; // 转回kg显示
+            displayBillingWeight = billingWeightLbs * 0.453592; // 转回kg显示
+        } else {
+            displayVolumeWeight = volumeWeightLbs;
+            displayBillingWeight = billingWeightLbs;
+        }
+        
         return {
-            volumeWeight,
-            billingWeight,
+            volumeWeight: displayVolumeWeight,
+            billingWeight: displayBillingWeight,
             category: categoryInfo,
             shippingCost,
             shippingCostCny: shippingCost * this.exchangeRate
