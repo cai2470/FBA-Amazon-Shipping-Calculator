@@ -429,13 +429,17 @@ main {
     background: linear-gradient(135deg, #e8f5e8 0%, #d5eddb 100%);
     border: 2px solid #27ae60;
     border-radius: 10px;
-    padding: 12px 18px;
+    padding: 15px 20px;
     margin-bottom: 15px;
+    font-size: 0.95rem;
+    box-shadow: 0 3px 12px rgba(39, 174, 96, 0.2);
+}
+
+.rate-main {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 0.95rem;
-    box-shadow: 0 2px 8px rgba(39, 174, 96, 0.15);
+    margin-bottom: 8px;
 }
 
 .exchange-rate-info #exchange-rate-display {
@@ -446,14 +450,38 @@ main {
 .exchange-rate-info #exchange-rate {
     font-weight: 700;
     color: #27ae60;
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     margin-left: 5px;
 }
 
-.update-time {
-    color: #7f8c8d;
+.rate-status {
+    font-size: 0.85rem;
+    color: #27ae60;
+    font-weight: 600;
+    background: rgba(39, 174, 96, 0.1);
+    padding: 4px 8px;
+    border-radius: 12px;
+}
+
+.rate-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     font-size: 0.8rem;
+    color: #7f8c8d;
+}
+
+.update-time {
     font-style: italic;
+}
+
+.api-info {
+    background: rgba(52, 152, 219, 0.1);
+    color: #3498db;
+    padding: 2px 6px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 500;
 }
 
 .result-item.cny-cost {
@@ -689,6 +717,17 @@ main {
     }
     
     .exchange-rate-info {
+        padding: 12px 15px;
+    }
+    
+    .rate-main {
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px;
+    }
+    
+    .rate-details {
         flex-direction: column;
         gap: 5px;
         text-align: center;
