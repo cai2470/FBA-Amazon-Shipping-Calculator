@@ -2,7 +2,7 @@ User-agent: *
 Allow: /
 
 # 网站地图
-Sitemap: https://your-domain.com/sitemap.xml
+Sitemap: https://liuchunxiao.xyz/sitemap.xml
 
-# 爬取频率
-Crawl-delay: 1
+# 爬取频率 (可选项，对于小型网站，主流搜索引擎通常会忽略此指令)
+# Crawl-delay: 1
