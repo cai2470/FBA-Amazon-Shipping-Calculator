@@ -329,13 +329,11 @@ class FBACalculator {
     }
 
     getLargeBulkyFee(weight) {
-        // 大号大件费用表：$6.92 + 超出首重3磅的部分每4盎司$0.08
+        // 大号大件费用表：$9.61 + 超出首重1磅的部分每磅$0.38
         const roundedWeight = Math.ceil(weight); // 向上取整到整磅
-        const baseFee = 6.92;
-        const excessWeight = Math.max(0, roundedWeight - 3); // 超出首重3磅的部分
-        const excessOunces = excessWeight * 16; // 转换为盎司
-        const tiers = Math.ceil(excessOunces / 4); // 按每4盎司梯度向上取整
-        const additionalFee = tiers * 0.08; // 每个梯度$0.08
+        const baseFee = 9.61;
+        const excessWeight = Math.max(0, roundedWeight - 1); // 超出首重1磅的部分
+        const additionalFee = excessWeight * 0.38;
         
         return baseFee + additionalFee;
     }
@@ -346,23 +344,22 @@ class FBACalculator {
         
         switch (category) {
             case '0-50':
-                // 超大件 0至50磅：$9.61 + 超出首磅的部分每磅$0.38（最小1磅）
-                const excess0_50 = Math.max(0, roundedWeight - 1);
-                return 9.61 + excess0_50 * 0.38;
+                // 修正：此分类对应 “大号大件” 的费用
+                return this.getLargeBulkyFee(weight);
             case '50-70':
-                // 超大件 50至70磅（不含50磅）：$26.33 + 超出首磅的部分每磅$0.38（最小1磅）
-                const excess50_70 = Math.max(0, roundedWeight - 1);
+                // 超大件 50至70磅（不含50磅）：$26.33 + 超出首重50磅的部分每磅$0.38
+                const excess50_70 = Math.max(0, roundedWeight - 50);
                 return 26.33 + excess50_70 * 0.38;
             case '70-150':
-                // 超大件 70至150磅（不含70磅）：$40.12 + 超出首重51磅的部分每磅$0.75（最小1磅）
-                const excess70_150 = Math.max(0, roundedWeight - 51);
+                // 超大件 70至150磅（不含70磅）：$40.12 + 超出首重71磅的部分每磅$0.75
+                const excess70_150 = Math.max(0, roundedWeight - 71);
                 return 40.12 + excess70_150 * 0.75;
             case '150+':
-                // 超大件 150磅以上（不含150磅）：$194.95 + 超出首重151磅的部分每磅$0.19（最小1磅）
+                // 超大件 150磅以上（不含150磅）：$194.95 + 超出首重151磅的部分每磅$0.19
                 const excess150plus = Math.max(0, roundedWeight - 151);
                 return 194.95 + excess150plus * 0.19;
         }
-        return 194.95 + Math.max(0, Math.ceil(weight - 151) * 0.19);
+        return 0; // 默认返回0
     }
 
     displayResults(volumeWeight, billingWeight, categoryInfo, shippingCost, isMetric) {
